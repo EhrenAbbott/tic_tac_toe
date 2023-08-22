@@ -81,6 +81,10 @@ const App = {
         newRoundBtn: document.querySelector('[data-id="new-round-btn"]'),
         squares: document.querySelectorAll('[data-id="square"]'),
     }, 
+
+    state: { 
+        currentPlayer: 1
+    },
     
     init() { 
         App.registerEventListeners()
@@ -104,7 +108,21 @@ const App = {
 
         App.$.squares.forEach((square) => { 
             square.addEventListener("click", (event) => { 
-                console.log(`${event.target.id}`);
+                console.log(`${event.target.id}`);  
+
+                const currentPlayer = App.state.currentPlayer;
+
+                const icon = document.createElement("i");
+
+                if(currentPlayer === 1) { 
+                    icon.classList.add("fa-solid", "fa-x", "yellow");
+                } else { 
+                    icon.classList.add("fa-solid", "fa-o", "turquoise");
+                }
+
+                App.state.currentPlayer = App.state.currentPlayer === 1 ? 2 : 1
+
+                event.target.replaceChildren(icon);
             });
         });
     }
@@ -153,4 +171,76 @@ window.addEventListener("load", App.init);
 //data-id of 'square' that could be multiple element, and we want to target them all-- forEach.(square). After we target them, 
 // we will be adding an event listener that activates with a click. this click will result in printing the event target's own id.
 
-//Now we will add all of the method into another method just to get the init method clean. This is just for organizational purposes. 
+//Now we will add all of the method into another method just to get the init method clean. This is just for organizational purposes.
+
+
+//Now to add functionality to the sqaure buttons, so that they display an icon when clicked.
+//First start by creating the icon element itself (the 'X' and 'O' that wull get displayed when clicked): 
+//****** */
+// const icon = document.createElement("i");
+//****** */ 
+// The "i" is an HTML element that represent a visual icon (like the kind FontAwesome is used for). So here we are just creating it
+//but not putting it anywhere or defining it in any way. 
+
+//Here is where we will give it some classes, some of which are from FontAwesome and one of which we have defined ourselves in the CSS document.
+//****** */ 
+// icon.classList.add("fa-solid", "fa-x", "yellow");
+//****** */
+
+//So now that the element has been created, we need to add it into the target that was clicked. Because remember that right now it just exists, 
+// it is not actually being used. 
+//****** */
+// event.target.replaceChildren(icon);
+//****** */
+//As of now, when you click the squares, the X will appear, but you can keep clicking any given square to add multiple X's, which is not what we want.
+
+//This is a good time to talk about the difference between 'client state' and 'server state'
+// CLIENT STATE would be a state that we have within the DOM that does not need to change anything that is persistent long term. So for example the 
+//action menu opening and closing would be a client side state change because if you were to refresh the page after clicking the dropdown
+//menu, the menu would not stay down but it would be refreshed with the options hidden. It is a temporary change. 
+// SERVER STATE would remain after browser refreshes, so in the case of this game it would include things like,  which player has the current move, the game 
+// score, and game history.
+
+//So to start handling state change we will have to first define what sates we will need to keep track of: 
+//****** */
+// state: { 
+//     currentPlayer: 1
+// }
+//****** */ 
+
+//So in our method that runs when we click a square we will add: 
+//****** */
+// const currentPlayer = App.state.currentPlayer;
+//****** */
+//This is just creating a variable and assigning it to the value of the state, so that it can be used in  the  click square function
+
+// Now link the state, which tracks which player's turn it is, to the icon  appearance. We'll use an if statemtent:
+///****** */
+// if(currentPlayer === 1) { 
+//     icon.classList.add("fa-solid", "fa-x", "yellow");
+// } else { 
+//     icon.classList.add("fa-solid", "fa-o", "turquoise");
+// } 
+//****** */
+//Because the const that creates the icon element exists outside (and before) the if statment, we can just assign different classes 
+//to the element based on which player has the current turn; we don't have to create two seperate icon variable for each different player; 
+// we just have to systematically alter the one icon's appearance using class variables that we have defined in the css file.
+//Note that this doesn't actually make the icon appear(!); it is just saying that the icon, whenever it get displayed, which is still tbd, 
+//will look like this. Make makes it appear is the subsequent line of code: event.target.replaceChildren(icon);
+
+//After the make it so the correct icon can appear for each player, we need to update the state so the first player does not just 
+// get infinite consecutive turns: 
+//****** */
+// App.state.currentPlayer = App.state.currentPlayer === 1 ? 2 : 1
+//****** */
+// The ternary operator after the '===' is saying: if the current player is to to 1, then it will become 2; 
+// otherwise (if it is not set to 1),  it will become 1. This functions as a toggle to swap turns between players.
+
+//So right now it will successfully alternate beween X's and O's; however the problem where multiple icons get displayed  in the same 
+// square still persists. To do this we need to write an if statement checking to see if the square getting clicked already has a child
+// node/element, which in this case would be the X or O we are checking for: 
+//****** */ 
+if (square.hasChildNodes()) { 
+    return;
+}
+//****** */
