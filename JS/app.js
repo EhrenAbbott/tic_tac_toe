@@ -83,7 +83,7 @@ const App = {
     }, 
 
     state: { 
-        currentPlayer: 1
+        moves: [], 
     },
     
     init() { 
@@ -110,7 +110,13 @@ const App = {
             square.addEventListener("click", (event) => { 
                 console.log(`${event.target.id}`);  
 
-                const currentPlayer = App.state.currentPlayer;
+                //Check if there is already a plan; if there is, return early.
+                if (square.hasChildNodes()) { 
+                    return;
+                }
+
+                //Determine which player icon gets added to the square
+                const currentPlayer = App.state.moves.length === 0 ? 1 :
 
                 const icon = document.createElement("i");
 
@@ -120,9 +126,26 @@ const App = {
                     icon.classList.add("fa-solid", "fa-o", "turquoise");
                 }
 
-                App.state.currentPlayer = App.state.currentPlayer === 1 ? 2 : 1
+                App.state.moves.push({ 
+                    squareId: +square.id, 
+                    playerId: currentPlayer
+                })
+                
+                App.state.currentPlayer = currentPlayer === 1 ? 2 : 1
 
-                event.target.replaceChildren(icon);
+                square.replaceChildren(icon);
+
+                //Check if a player has won or if the game has ended in a tie
+                const winningPatterns = [
+                    [1, 2, 3],
+                    [1, 5, 9],
+                    [1, 4, 7],
+                    [2, 5, 8],
+                    [3, 5, 7],
+                    [3, 6, 9],
+                    [4, 5, 6],
+                    [7, 8, 9],
+                  ];
             });
         });
     }
@@ -190,7 +213,7 @@ window.addEventListener("load", App.init);
 //So now that the element has been created, we need to add it into the target that was clicked. Because remember that right now it just exists, 
 // it is not actually being used. 
 //****** */
-// event.target.replaceChildren(icon);
+// square.replaceChildren(icon);
 //****** */
 //As of now, when you click the squares, the X will appear, but you can keep clicking any given square to add multiple X's, which is not what we want.
 
@@ -226,7 +249,7 @@ window.addEventListener("load", App.init);
 //to the element based on which player has the current turn; we don't have to create two seperate icon variable for each different player; 
 // we just have to systematically alter the one icon's appearance using class variables that we have defined in the css file.
 //Note that this doesn't actually make the icon appear(!); it is just saying that the icon, whenever it get displayed, which is still tbd, 
-//will look like this. Make makes it appear is the subsequent line of code: event.target.replaceChildren(icon);
+//will look like this. Make makes it appear is the subsequent line of code: square.replaceChildren(icon);
 
 //After the make it so the correct icon can appear for each player, we need to update the state so the first player does not just 
 // get infinite consecutive turns: 
@@ -240,7 +263,24 @@ window.addEventListener("load", App.init);
 // square still persists. To do this we need to write an if statement checking to see if the square getting clicked already has a child
 // node/element, which in this case would be the X or O we are checking for: 
 //****** */ 
-if (square.hasChildNodes()) { 
-    return;
-}
+// if (square.hasChildNodes()) { 
+//     return;
+// }
 //****** */
+
+//Now we add the winningPatterns const just so we have a set list of moves that we know woudl result in a winning game
+
+//Instead of checking th scorboard and looping through the list of wining moves every time a player has completed their turn, it would be 
+// much more efficient to create a state that essentially logs the moves each player has made: 
+//****** */
+// moves: [], 
+//****** */ 
+
+//Now to make it so the player and their move gets recorded to the new state as an object with two properties: 
+App.state.moves.push({ 
+    squareId: +square.id, 
+    playerId: currentPlayer
+})
+//Notice that thishas to happen BEFORE the line with the ternary operator that changes the current player, or else the wrong player would be recorded
+//(The plus operator is to ensure that that value is added a number and not a steing)
+//This means that our currentPlayer state is now redundant, so we can delete it. 
