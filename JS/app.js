@@ -106,17 +106,28 @@ const App = {
             console.log('Add a new round');
         });
 
+       //TODO
         App.$.squares.forEach((square) => { 
             square.addEventListener("click", (event) => { 
                 console.log(`${event.target.id}`);  
-
                 //Check if there is already a plan; if there is, return early.
-                if (square.hasChildNodes()) { 
+                const hasMove = (squareId) => { 
+                    const existingMove = App.state.moves.find(move => move.squareId === squareId)
+                    return existingMove !== undefined
+                }   
+
+                
+                if (hasMove(+square.id)){ 
                     return;
                 }
 
                 //Determine which player icon gets added to the square
-                const currentPlayer = App.state.moves.length === 0 ? 1 :
+                const lastMove = App.state.moves.at(-1);
+                const getOppositePlayer = (playerId) => (playerId === 1 ? 2 : 1);
+                const currentPlayer = 
+                    App.state.moves.length === 0 
+                        ? 1 
+                        : getOppositePlayer(lastMove.playerId);
 
                 const icon = document.createElement("i");
 
@@ -131,7 +142,6 @@ const App = {
                     playerId: currentPlayer
                 })
                 
-                App.state.currentPlayer = currentPlayer === 1 ? 2 : 1
 
                 square.replaceChildren(icon);
 
@@ -277,10 +287,101 @@ window.addEventListener("load", App.init);
 //****** */ 
 
 //Now to make it so the player and their move gets recorded to the new state as an object with two properties: 
-App.state.moves.push({ 
-    squareId: +square.id, 
-    playerId: currentPlayer
-})
-//Notice that thishas to happen BEFORE the line with the ternary operator that changes the current player, or else the wrong player would be recorded
+//****** */
+// App.state.moves.push({ 
+//     squareId: +square.id, 
+//     playerId: currentPlayer
+// }) 
+//****** */
+//Notice that this has to happen BEFORE the line with the ternary operator that changes the current player, or else the wrong player would be recorded
 //(The plus operator is to ensure that that value is added a number and not a steing)
 //This means that our currentPlayer state is now redundant, so we can delete it. 
+
+//To begin determining which player icon gets added to the square, we need to create a variable to check 
+// the moves state in order to extract the last element of the array (to see who moved last, since that would have gotten pushed to the state): 
+//****** */
+// const lastMove = App.state.moves.at(-1)
+//****** */
+//The .at(-1) is just a concise JS way of grabbing the last element of an array (instead of finding the length  of the list and subtracting 1, which)
+// would be much longer. Keep in mind this could turn out to be unfedined if there is nothing in the array.
+
+//Now to check the lastMove variable and use it to set the currentPlayer. We will start by 
+//making a variable to determine the player that ISN'T the one that took the last move:
+//****** */
+// const getOppositePlayer = (playerId) => (playerId === 1 ? 2 : 1);
+//****** */
+//^This way way are sitting a variable to a anonymous function where we are passing in playerId. Then we are saying, 
+// if playerId is 1 then the opposite player is the only other number (and vice versa)
+
+//****** */
+// const currentPlayer = 
+//     App.state.moves.length === 0 
+//         ? 1 
+//         : getOppositePlayer(lastMove.playerId);
+//****** */
+//What this is dong is first checking to see if any moves have been made. 
+//Essentially it can be read as: if the moves state array is empty (so, if the length is zero), then we know that no moves 
+//have been made and we can set the current player to player 1. However, if a move has been made (which we would deduce from the length 
+// of the moves state being greater than 0), then we will refer to the getOppositePlayer variable/method to derive the currentPlayer; 
+// getOppositePlayer  variable/method will look at the lastMove const, which will be referencing the last value in the moves array. 
+// Depending on what this value is, the getOpposite function will set this to either 2 or 1.
+// We can also now get rid of the previous line of code that determined th current player bc it is no longer needed. 
+
+//Now that we are tracking the game moves, we dont need to block fo code that checks to see is the square being
+//clicked has any child nodes (with the if statement). This relies on the DOM itself and it would better to just check 
+// express what we are attempting to do verify the state of the game. So for this we will create a helper method. 
+//****** */ 
+// const hasMove = (squareId) => { 
+//     const existingMove = App.state.moves.find(move => move.squareId === squareId)
+//     return existingMove !== undefined
+// } 
+//****** */
+//Here we are making a function that takes a squareId (a number). Then we are making a variable that is equal to App.state.moves, 
+// and then we will look for the squareId in that array by using .find. Here, find will take the move and check if its squareId matches 
+// the squareId that we are passing into the hasMove function.
+
+//Now we can replace the square.hasChildNodes part with the fuction we just wrote: 
+//****** */ 
+// if (hasMove(+square.id)){ 
+//     return;
+// }
+//****** */
+
+//It's important to note that whenever you are tracking state within an application, it should be kept  as simple as possible 
+// This is bc whenever you track something in state you will be updating it somewhere, and the more thing
+//you track the more updates you will have to keep tabs on; if there are too many things to keep track of, things can start 
+//to slip through the cracks and this will result in errors. 
+
+//The next part will be to determine if a player has won the game or if there is a tie. 
+//We will do this with a utility function: 
+//****** */
+getGameStatus(moves) {  
+
+    const p1Moves = moves.filter(move => move.playerId === 1)
+    const p2Moves = moves.filter(move => move.playerId === 2)
+
+    const winningPatterns = [
+        [1, 2, 3],
+        [1, 5, 9],
+        [1, 4, 7],
+        [2, 5, 8],
+        [3, 5, 7],
+        [3, 6, 9],
+        [4, 5, 6],
+        [7, 8, 9],
+      ];
+
+    return { 
+        status: 'in-progress', //in-progress | complete
+        winner: 1 // 1 | 2 | null
+    }
+}
+//****** */
+//This function will take in an array of moves from state. We start by making the return statement where we
+// will keep track of if the game has been completed or if it's ongoing. We will also track which player is the winner (or if it has tied) 
+// We will then get player1 moves bc filterig the moves array according to the playerId. We will do the same for player2. 
+// Next we will copy and paste our winningPatterns const into this method, and we will look through these patterns to see 
+//if they match up with ay of the filtered player move arrays. So we start by making a winner variable, which is automatically 
+// set to null.
+
+//2:35:37
