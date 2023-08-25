@@ -86,6 +86,38 @@ const App = {
         moves: [], 
     },
     
+    getGameStatus(moves) {  
+
+        const p1Moves = moves.filter(move => move.playerId === 1).map(move => +move.squareId)
+        const p2Moves = moves.filter(move => move.playerId === 2).map(move => +move.squareId)
+    
+        const winningPatterns = [
+            [1, 2, 3],
+            [1, 5, 9],
+            [1, 4, 7],
+            [2, 5, 8],
+            [3, 5, 7],
+            [3, 6, 9],
+            [4, 5, 6],
+            [7, 8, 9],
+          ];
+        
+          let winner = null
+    
+          winningPatterns.forEach(pattern => { 
+            const p1Wins = pattern.every(v => p1Moves.includes(v))
+            const p2Wins = pattern.every(v => p2Moves.includes(v))
+    
+            if (p1Wins) winner = 1 
+            if (p2Wins) winner = 2
+          })
+    
+        return { 
+            status: moves.length === 9 || winner != null ? 'complete' : 'in-progress', //in-progress | complete
+            winner // 1 | 2 | null
+        }
+    },
+
     init() { 
         App.registerEventListeners()
     }, 
@@ -140,22 +172,20 @@ const App = {
                 App.state.moves.push({ 
                     squareId: +square.id, 
                     playerId: currentPlayer
-                })
-                
+                }) 
 
                 square.replaceChildren(icon);
 
-                //Check if a player has won or if the game has ended in a tie
-                const winningPatterns = [
-                    [1, 2, 3],
-                    [1, 5, 9],
-                    [1, 4, 7],
-                    [2, 5, 8],
-                    [3, 5, 7],
-                    [3, 6, 9],
-                    [4, 5, 6],
-                    [7, 8, 9],
-                  ];
+                const game =  App.getGameStatus(App.state.moves)
+
+                if (game.status === 'complete'){ 
+                    if (game.winner) { 
+                        alert(`Player ${game.winner} wins!`);
+                    } else { 
+                        alert("Tie!");
+                    }
+                }
+
             });
         });
     }
@@ -355,33 +385,76 @@ window.addEventListener("load", App.init);
 //The next part will be to determine if a player has won the game or if there is a tie. 
 //We will do this with a utility function: 
 //****** */
-getGameStatus(moves) {  
+// getGameStatus(moves) {  
 
-    const p1Moves = moves.filter(move => move.playerId === 1)
-    const p2Moves = moves.filter(move => move.playerId === 2)
+//     const p1Moves = moves.filter(move => move.playerId === 1).map(move => +move.squareId)
+//     const p2Moves = moves.filter(move => move.playerId === 2).map(move => +move.squareId)
 
-    const winningPatterns = [
-        [1, 2, 3],
-        [1, 5, 9],
-        [1, 4, 7],
-        [2, 5, 8],
-        [3, 5, 7],
-        [3, 6, 9],
-        [4, 5, 6],
-        [7, 8, 9],
-      ];
+//     const winningPatterns = [
+//         [1, 2, 3],
+//         [1, 5, 9],
+//         [1, 4, 7],
+//         [2, 5, 8],
+//         [3, 5, 7],
+//         [3, 6, 9],
+//         [4, 5, 6],
+//         [7, 8, 9],
+//       ];
+    
+//       let winner = null
 
-    return { 
-        status: 'in-progress', //in-progress | complete
-        winner: 1 // 1 | 2 | null
-    }
-}
+//       winningPatterns.forEach(pattern => { 
+//         const p1Wins = pattern.every(v => p1Moves.includes(v))
+//         const p2Wins = pattern.every(v => p2Moves.includes(v))
+
+//         if (p1Wins) winner = 1 
+//         if (p2Wins) winner = 2
+//       })
+
+//     return { 
+//         status: moves.length === 9 || winner != null ? 'complete' : 'in-progress', //in-progress | complete
+//         winner // 1 | 2 | null
+//     }
+// }
 //****** */
 //This function will take in an array of moves from state. We start by making the return statement where we
 // will keep track of if the game has been completed or if it's ongoing. We will also track which player is the winner (or if it has tied) 
 // We will then get player1 moves bc filterig the moves array according to the playerId. We will do the same for player2. 
 // Next we will copy and paste our winningPatterns const into this method, and we will look through these patterns to see 
 //if they match up with ay of the filtered player move arrays. So we start by making a winner variable, which is automatically 
-// set to null.
+// set to null so that the default position is to assume that neither player has won. 
+//  
+//Then we add the lines of code that maps through the winningPatterns variable. Note that in this portion, both 'v' and 'pattern' are being
+//used for the first time; they weren't previously defined elsewhere.  
+//It can be read as: for each (.forEach()) item in winningPatterns, the following function will be applied; 'pattern' will be the name of the 
+//argument and represents each indivual item in winningPatterns, and we will create a variable called p1wins, which uses .every() to check and see
+// if every value ('v') in 'pattern' is included in is the set of player 1 moves (p1Moves). Note that .every returns a Booleans, 
+// while .forEach typically performs a function on an array value. After we have to use a .map so we are comparing a number to a number and not
+// two different types of data. 
+// Then we do the same for a player2 const, and create an if statment to say, if player1 wins, the winner variable is 1 and vice versa for P2.
+//If neither of these conditions are met, winner will remains 'null' and we will assume that's a tie. 
+ 
+// Now we can change the return statement to update the game status. We can do this concisely that a single line ternary operator that checks to 
+// see if 9 moves have been made (the max number) or if a winner has been declared;  if this is the case, the status will be 'complete,' otherwise it 
+// will be 'in-progress'
+
+//Now will will create a variable, which will have a value of the newly create getGameStatus function, to which we will pass in 
+// the moves state: 
+//****** */ 
+//  const game =  App.getGameStatus(App.state.moves)
+//  console.log(game);
+//****** */ 
+
+//Then we add the following to make an alert that states the winner if the game has concluded.
+//****** */
+// if (game.status === 'complete'){ 
+//     if (game.winner) { 
+//         alert(`Player ${game.winner} wins!`);
+//     } else { 
+//         alert("Tie!");
+//     }
+// } 
+//****** */
 
 //2:35:37
+//2:43:33
