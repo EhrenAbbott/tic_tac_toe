@@ -83,6 +83,7 @@ const App = {
         modal: document.querySelector('[data-id="modal"]'),
         modalText: document.querySelector('[data-id="modal-text"]'),
         modalBtn: document.querySelector('[data-id="modal-btn"]'),
+        turn: document.querySelector('[data-id="turn"]'),
     }, 
 
     state: { 
@@ -169,21 +170,31 @@ const App = {
                     App.state.moves.length === 0 
                         ? 1 
                         : getOppositePlayer(lastMove.playerId);
+                const nextPlayer = getOppositePlayer(currentPlayer)
 
-                const icon = document.createElement("i");
+                const squareIcon = document.createElement("i");
+                const turnIcon = document.createElement("i");
+                const turnLabel = document.createElement('p')
+                turnLabel.innerText = `Player ${nextPlayer}, you are up!`
 
                 if(currentPlayer === 1) { 
-                    icon.classList.add("fa-solid", "fa-x", "yellow");
+                    squareIcon.classList.add("fa-solid", "fa-x", "yellow");
+                    turnIcon.classList.add("fa-solid", "fa-o", "turquoise");
+                    turnLabel.classList = 'turquoise'
                 } else { 
-                    icon.classList.add("fa-solid", "fa-o", "turquoise");
+                    squareIcon.classList.add("fa-solid", "fa-o", "turquoise");
+                    turnIcon.classList.add("fa-solid", "fa-x", "yellow");
+                    turnLabel.classList = 'yellow'
                 }
+
+                App.$.turn.replaceChildren(turnIcon, turnLabel);
 
                 App.state.moves.push({ 
                     squareId: +square.id, 
                     playerId: currentPlayer
                 }) 
 
-                square.replaceChildren(icon);
+                square.replaceChildren(squareIcon);
 
                 const game =  App.getGameStatus(App.state.moves)
 
@@ -522,12 +533,56 @@ window.addEventListener("load", App.init);
 // toggled, it needs to be added again)
 
 
-//Next up is working on the turn indicator so that it changes based on which player has the current move: 
+//Next up is working on the turn indicator so that it changes based on which player has the current move. 
+// We start by making a const for the turn indicator div:
 //****** */ 
+// turn: document.querySelector('[data-id="turn"]'),
+//****** */  
 
+//And we add a new const to the section that is used to determine which player icon gets added to the square. 
+//We also add a new const that creates an empty p element (but does not insert it anywhere):
 //****** */ 
+// const nextPlayer = getOppositePlayer(currentPlayer)
+// const turnLabel = document.createElement('p')
+//****** */
 
+
+//Then we do the following to make the text that would go in the new p element: 
+//****** */ 
+// turnLabel.innerText = `Player ${nextPlayer}, you are up!`
+//****** */
+//Note that we have created the p element, we have put text inside it, but at this point 
+// we have still not actually inserted this elemet into any part of the html.
+
+
+//We will also add another icon const to distinguish it from the icon that gets displayed in the actual game board
+//****** */ 
+// const turnIcon = document.createElement("i");
+//****** */
+
+
+//And then we update the subsequent if statement to change the turn icon (in addition to changing 
+// the actual game icon): 
+//****** */ 
+// if(currentPlayer === 1) { 
+//     squareIcon.classList.add("fa-solid", "fa-x", "yellow");
+//     turnIcon.classList.add("fa-solid", "fa-o", "turquoise");
+// } else { 
+//     squareIcon.classList.add("fa-solid", "fa-o", "turquoise");
+//     turnIcon.classList.add("fa-solid", "fa-x", "yellow");
+// }
+//****** */
+//This works now except the text isn't changing color based on which player has the turn. 
+// To fix this we will add the following the the if and else statements: 
+//****** */ 
+// turnLabel.classList = 'turquoise' 
+//and 
+// turnLabel.classList = 'yellow' 
+//****** */
 
 
 //2:35:37
 //2:43:33
+//****** */ 
+
+//****** */
