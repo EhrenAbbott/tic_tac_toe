@@ -80,6 +80,9 @@ const App = {
         resetBtn: document.querySelector('[data-id="reset-btn"]'),
         newRoundBtn: document.querySelector('[data-id="new-round-btn"]'),
         squares: document.querySelectorAll('[data-id="square"]'),
+        modal: document.querySelector('[data-id="modal"]'),
+        modalText: document.querySelector('[data-id="modal-text"]'),
+        modalBtn: document.querySelector('[data-id="modal-btn"]'),
     }, 
 
     state: { 
@@ -179,11 +182,16 @@ const App = {
                 const game =  App.getGameStatus(App.state.moves)
 
                 if (game.status === 'complete'){ 
+                    App.$.modal.classList.remove('hidden');
+
+                    let message = "";
                     if (game.winner) { 
-                        alert(`Player ${game.winner} wins!`);
+                        message = `Player ${game.winner} wins!`;
                     } else { 
-                        alert("Tie!");
-                    }
+                        message = "Tie game!";
+                    } 
+                     
+                    App.$.modalText.textContent = message;
                 }
 
             });
@@ -455,6 +463,44 @@ window.addEventListener("load", App.init);
 //     }
 // } 
 //****** */
+
+//Now it is time to build the pop-up window (modal) that appears and gives the user the option to start 
+// a new game.
+// The first step is to add a selector to the modal with a data id.
+//****** */
+// modal: document.querySelector('[data-id="modal"]'),
+// modalText: document.querySelector('[data-id="modal-text"]'),
+// modalBtn: document.querySelector('[data-id="modal-btn"]'),
+//We create consts and add these to our App $ object just like we did for our other elements. 
+// Note that we are using just querySelector and not querySelectorAll bc we are referencing single elements
+
+
+//And we can add some more code to the  if statment where we check if the game is complete. 
+// We'll start by opening the modal, which we accomplish by removing  the 'hidden' class which make it initially not visible 
+//****** */ 
+// App.$.modal.classList.remove('hidden')
+//****** */
+
+// We can also get rid of the alert since it is redundant now but keep the if statement and modify it 
+//to be used by the modal: 
+// if (game.status === 'complete'){ 
+//     App.$.modal.classList.remove('hidden');
+
+//     let message = "";
+//     if (game.winner) { 
+//         message = `Player ${game.winner} wins!`;
+//     } else { 
+//         message = "Tie game!";
+//     } 
+     
+//     App.$.modalText.textContent = message;
+// }
+//****** */
+//Notice that the last line uses .textContent, which removes all of the node's children and replaces them with
+// a single text node. Since the <p> element with the id of modalText has no children, this works well here. 
+// (For this purpose it is superior to HTMLElement.innerText and Element.innerHTML)
+
+
 
 //2:35:37
 //2:43:33
