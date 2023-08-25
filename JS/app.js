@@ -141,6 +141,12 @@ const App = {
             console.log('Add a new round');
         });
 
+        App.$.modalBtn.addEventListener("click", (event) => { 
+            App.state.moves = []
+            App.$.squares.forEach((square) => square.replaceChildren());
+            App.$.modal.classList.add('hidden')
+        });
+
        //TODO
         App.$.squares.forEach((square) => { 
             square.addEventListener("click", (event) => { 
@@ -499,6 +505,27 @@ window.addEventListener("load", App.init);
 //Notice that the last line uses .textContent, which removes all of the node's children and replaces them with
 // a single text node. Since the <p> element with the id of modalText has no children, this works well here. 
 // (For this purpose it is superior to HTMLElement.innerText and Element.innerHTML)
+
+// And here we will make the event listener for the modal: 
+//****** */
+// App.$.modalBtn.addEventListener("click", (event) => { 
+//     App.state.moves = []
+//     App.$.squares.forEach((square) => square.replaceChildren());
+//     App.$.modal.classList.add('hidden')
+// });
+//****** */
+//The first line just resets the state, making it blank. This, however, doesn't affect the UI, so in order to clear
+// the display, you have to add the second line, which loops through the sqaures. Notice that .replaceChildren() is used, 
+// but it is not given any arguments; this functions to clear them of the icons that are present without putting anythin else 
+// in their place. 
+// The third line simply turns the modal's hidden class back on by adding it again (Technically bc it was removed and not 
+// toggled, it needs to be added again)
+
+
+//Next up is working on the turn indicator so that it changes based on which player has the current move: 
+//****** */ 
+
+//****** */ 
 
 
 
