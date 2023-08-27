@@ -580,9 +580,7 @@ window.addEventListener("load", App.init);
 // turnLabel.classList = 'yellow' 
 //****** */
 
-
-//2:35:37
-//2:43:33
-//****** */ 
-
-//****** */
+// The game at this point is almost fully functional, so next we will refactor it to improve
+// the organization and flow. Given current code, certain sections are becoming a bit complicated and unwieldy, 
+// so the next objective will be to break the single app.js file into multiple other files that represent 
+// specific responsiblities.
